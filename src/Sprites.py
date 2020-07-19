@@ -11,8 +11,8 @@ class BoardSprite(Sprite):
         Sprite.__init__(self)
         self.image = surface
         self.rect = surface.get_rect()
-        width, height = self.rect.width, self.rect.height
 
+        width, height = self.rect.width, self.rect.height
         self.dimension = board.shape
         self.block_size = Vector2()
         self.block_size.x = width / board.shape[0]
@@ -23,7 +23,8 @@ class BoardSprite(Sprite):
         else:
             block_images = [image for image in image_list]
             if len(block_images) < block_kind_count:
-                more_images = [self.get_default_image(number) for number in range(len(image_list), block_kind_count)]
+                more_images = [self.get_default_image(number)
+                               for number in range(len(image_list), block_kind_count)]
                 block_images.extend(more_images)
         self.block_images = block_images
 
@@ -35,11 +36,11 @@ class BoardSprite(Sprite):
             screen_position.y = column * self.block_size.y
             self.blocks.append(BlockSprite(screen_position, self.block_images[block_kind]))
 
-    def get_default_image(self, number: int):
+    def get_default_image(self, number: int) -> Surface:
         sw, sh = int(self.block_size.x), int(self.block_size.y)
         surface = Surface((sw, sh))
         font = Font(None, 24)
-        image: Surface = font.render(f"{number}", True, Color(255, 255, 255))
+        image = font.render(f"{number}", True, Color(255, 255, 255))
         cx, cy = int(sw / 2), int(sh / 2)
         surface.blit(image, image.get_rect(center=(cx, cy)))
         return surface

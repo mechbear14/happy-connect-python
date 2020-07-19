@@ -14,7 +14,7 @@ class BoardTest(unittest.TestCase):
     def test_create(self):
         board_obj = Board(8, 8, 3)
         board = board_obj.get_board()
-        self.assertNotEqual(board[6][0], -1)
+        self.assertEqual(board.shape[0] * board.shape[1], 8 * 8)
         self.assertTrue(isinstance(board[4][2], numpy.int8))
         count = board_obj.get_count()
         self.assertEqual(len(count), 3)
