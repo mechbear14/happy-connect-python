@@ -32,13 +32,19 @@ class BoardSpriteTest(unittest.TestCase):
         self.assertTrue(isinstance(board_sprite.block_images[2], Surface))
 
     def test_render(self):
-        board = Board(8, 8, 3)
+        board = Board(8, 8, 2)
+        board.board = numpy.zeros([8, 8], numpy.int8)
+        board.board[4][2] = 1
         board_surface = Surface((400, 400))
-        board_sprite = BoardSprite(board, board_surface)
+        image_list = [Surface((50, 50)), Surface((50, 50))]
+        image_list[0].fill(Color(200, 0, 0))
+        image_list[1].fill(Color(0, 200, 0))
+        board_sprite = BoardSprite(board, board_surface, image_list)
         screen = Surface((400, 600))
         position = Vector2(0, 100)
         board_sprite.render(screen, position)
-        self.assertTrue(True, False)
+        self.assertEqual(screen.get_at((125, 325)), Color(0, 200, 0))
+        self.assertEqual(screen.get_at((225, 225)), Color(200, 0, 0))
 
 
 class BlockSpriteTest(unittest.TestCase):
