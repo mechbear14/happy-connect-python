@@ -31,8 +31,8 @@ class BoardSprite(Sprite):
         for array_index, block_kind in enumerate(board.get_board().flat):
             row, column = divmod(array_index, int(self.dimension[1]))
             screen_position = Vector2()
-            screen_position.x = row * self.block_size.x
-            screen_position.y = column * self.block_size.y
+            screen_position.x = column * self.block_size.x
+            screen_position.y = row * self.block_size.y
             self.blocks.append(BlockSprite(screen_position, self.block_images[block_kind]))
 
     def get_default_image(self, number: int) -> Surface:
