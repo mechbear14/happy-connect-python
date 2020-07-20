@@ -20,7 +20,7 @@ class BoardSprite(Sprite):
         if image_list is None:
             block_images = [self.get_default_image(number) for number in range(board.block_kind_count)]
         else:
-            block_images = [image for image in image_list]
+            block_images = image_list.copy()
             if len(block_images) < board.block_kind_count:
                 more_images = [self.get_default_image(number)
                                for number in range(len(image_list), board.block_kind_count)]
