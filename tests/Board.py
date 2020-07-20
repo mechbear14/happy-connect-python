@@ -23,18 +23,18 @@ class BoardTest(unittest.TestCase):
 
 class BoardSpriteTest(unittest.TestCase):
     def test_create(self):
-        board = Board(8, 8, 3).get_board()
+        board = Board(8, 8, 3)
         board_surface = Surface((400, 400))
-        board_sprite = BoardSprite(board, board_surface, 3)
+        board_sprite = BoardSprite(board, board_surface)
         self.assertEqual(board_sprite.block_size, Vector2(400 / 8, 400 / 8))
         self.assertEqual(len(board_sprite.blocks), 8 * 8)
         self.assertEqual(len(board_sprite.block_images), 3)
         self.assertTrue(isinstance(board_sprite.block_images[2], Surface))
 
     def test_render(self):
-        board = Board(8, 8, 3).get_board()
+        board = Board(8, 8, 3)
         board_surface = Surface((400, 400))
-        board_sprite = BoardSprite(board, board_surface, 3)
+        board_sprite = BoardSprite(board, board_surface)
         screen = Surface((400, 600))
         position = Vector2(0, 100)
         board_sprite.render(screen, position)
