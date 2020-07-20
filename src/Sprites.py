@@ -44,6 +44,9 @@ class BoardSprite(Sprite):
         surface.blit(image, image.get_rect(center=(cx, cy)))
         return surface
 
+    def get_block_size(self) -> Vector2:
+        return self.block_size
+
     def render(self, screen: Surface, position: Vector2):
         px = int(position.x)
         py = int(position.y)
