@@ -32,15 +32,11 @@ class MainScene(Scene):
         if self.selecting:
             board = self.board.get_board()
             mouse = mouse_row, mouse_col = self.mouse_on_which_block(position)
-            try:
-                backtrack = mouse == self.selected[-2]
-            except IndexError:
-                pass
-            else:
-                if backtrack:
-                    self.selected.pop()
-                    return
             last_row, last_col = self.selected[-1]
+            backtrack = len(self.selected) > 1 and mouse == self.selected[-2]
+            if backtrack:
+                self.selected.pop()
+                return
             on_screen = mouse_row > -1 and mouse_col > -1
             is_neighbour = abs(mouse_row - last_row) < 2 and abs(mouse_col - last_col) < 2
             same_colour = board[mouse_row][mouse_col] == board[last_row][last_col]
