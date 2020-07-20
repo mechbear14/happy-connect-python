@@ -1,35 +1,34 @@
-import numpy
 from pygame.sprite import Sprite
 from pygame.font import Font
 from pygame import Surface, Vector2, Color
 from typing import List
+from src.Core import Board
 
 
 class BoardSprite(Sprite):
-    def __init__(self, board: numpy.ndarray, surface: Surface, block_kind_count: int,
-                 image_list: List[Surface] = None):
+    def __init__(self, board: Board, surface: Surface, image_list: List[Surface] = None):
         Sprite.__init__(self)
         self.image = surface
         self.rect = surface.get_rect()
 
         width, height = self.rect.width, self.rect.height
-        self.dimension = board.shape
+        self.dimension = board.get_board().shape
         self.block_size = Vector2()
-        self.block_size.x = width / board.shape[0]
-        self.block_size.y = height / board.shape[1]
+        self.block_size.x = width / board.get_board().shape[0]
+        self.block_size.y = height / board.get_board().shape[1]
 
         if image_list is None:
-            block_images = [self.get_default_image(number) for number in range(block_kind_count)]
+            block_images = [self.get_default_image(number) for number in range(board.block_kind_count)]
         else:
             block_images = [image for image in image_list]
-            if len(block_images) < block_kind_count:
+            if len(block_images) < board.block_kind_count:
                 more_images = [self.get_default_image(number)
-                               for number in range(len(image_list), block_kind_count)]
+                               for number in range(len(image_list), board.block_kind_count)]
                 block_images.extend(more_images)
         self.block_images = block_images
 
         self.blocks = []
-        for array_index, block_kind in enumerate(board.flat):
+        for array_index, block_kind in enumerate(board.get_board().flat):
             row, column = divmod(array_index, int(self.dimension[1]))
             screen_position = Vector2()
             screen_position.x = row * self.block_size.x
