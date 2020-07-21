@@ -42,7 +42,7 @@ class BoardSpriteTest(unittest.TestCase):
         board_sprite = BoardSprite(board, board_surface, image_list)
         screen = Surface((400, 600))
         position = Vector2(0, 100)
-        board_sprite.render(screen, position)
+        board_sprite.render(screen, position, [])
         self.assertEqual(screen.get_at((125, 325)), Color(0, 200, 0))
         self.assertEqual(screen.get_at((225, 225)), Color(200, 0, 0))
 

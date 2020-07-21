@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from pygame.time import Clock
 from typing import NamedTuple, Tuple
 
 
@@ -7,6 +8,7 @@ class Scene:
     def __init__(self, context: NamedTuple):
         self.running = True
         self.context = context
+        self.clock = Clock()
 
     def on_destroy(self):
         pass
@@ -45,4 +47,5 @@ class Scene:
             self.update()
             self.render()
             pygame.display.update()
+            self.clock.tick(30)
         self.on_destroy()
