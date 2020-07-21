@@ -53,6 +53,9 @@ class Board:
         to_replace = numpy.argwhere(self.board < 0)
         for (space, block) in zip(to_replace, new_blocks):
             self.board[space[0], space[1]] = block
+<<<<<<< HEAD
 
         count_dict = self.count_blocks()
         self.count = [count_dict[key] for key in count_dict.keys()]
+=======
+>>>>>>> 7ae4d619a773da02065acadb24e58145e6b4a0a1

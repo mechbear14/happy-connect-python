@@ -50,7 +50,11 @@ class MainScene(Scene):
                 self.selected.append(mouse)
 
     def on_mouse_up(self, button: Tuple, position: Tuple):
+<<<<<<< HEAD
         if len(self.selected) > 2:
+=======
+        if len(self.selected) > 1:
+>>>>>>> 7ae4d619a773da02065acadb24e58145e6b4a0a1
             self.board.update(self.selected)
         self.board_sprite.sync_board()
         self.selected = []
