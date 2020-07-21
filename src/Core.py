@@ -25,13 +25,15 @@ class Board:
     def update(self, to_remove: List[Tuple]):
         row_count = self.dimension[0]
         all_rows = [r for r in range(row_count)]
-        for block in to_remove:
-            row, col = block
+        for column in range(self.dimension[1]):
+            rows_to_remove = [block[0] for block in to_remove if block[1] == column]
             remaining_rows = all_rows.copy()
-            remaining_rows.remove(row)
-            new_column = numpy.ones(row_count, dtype=numpy.int8) * -1
-            new_column[1:row_count] = self.board[numpy.array(remaining_rows), col]
-            self.board[:, col] = new_column
+            if len(rows_to_remove) > 0:
+                for row in rows_to_remove:
+                    remaining_rows.remove(row)
+                new_column = numpy.ones(row_count, dtype=numpy.int8) * -1
+                new_column[len(rows_to_remove):row_count] = self.board[numpy.array(remaining_rows), column]
+                self.board[:, column] = new_column
 
         value, count = numpy.unique(self.board, return_counts=True)
         count_dict = dict(zip(value, count))

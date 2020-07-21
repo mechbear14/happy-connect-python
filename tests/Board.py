@@ -67,6 +67,31 @@ class BoardTest(unittest.TestCase):
         # self.assertEqual(count_dict[-1], 0)
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 3)
 
+    def test_update_3(self):
+        board_obj = Board(4, 4, 4)
+        board_obj.board = numpy.array([[0, 0, 0, 0],
+                                       [1, 1, 2, 1],
+                                       [2, 2, 2, 2],
+                                       [3, 3, 2, 3]])
+        to_remove = [(2, 0), (2, 1), (1, 2), (2, 2), (3, 2), (2, 3)]
+        to_remove.reverse()
+        board_obj.update(to_remove)
+        self.assertEqual(board_obj.board[1, 0], 0)
+        self.assertEqual(board_obj.board[1, 1], 0)
+        self.assertEqual(board_obj.board[1, 3], 0)
+        self.assertEqual(board_obj.board[2, 0], 1)
+        self.assertEqual(board_obj.board[2, 1], 1)
+        self.assertEqual(board_obj.board[2, 3], 1)
+        self.assertEqual(board_obj.board[3, 0], 3)
+        self.assertEqual(board_obj.board[3, 1], 3)
+        self.assertEqual(board_obj.board[3, 2], 0)
+        self.assertEqual(board_obj.board[3, 3], 3)
+        value, count = numpy.unique(board_obj.board, return_counts=True)
+        count_dict = dict(zip(value, count))
+        self.assertRaises(KeyError, lambda: count_dict[-1])
+        # self.assertEqual(count_dict[-1], 0)
+        self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
+
 
 class BoardSpriteTest(unittest.TestCase):
     def test_create(self):
