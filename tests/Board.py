@@ -15,10 +15,57 @@ class BoardTest(unittest.TestCase):
         board_obj = Board(8, 8, 3)
         board = board_obj.get_board()
         self.assertEqual(board.shape[0] * board.shape[1], 8 * 8)
-        self.assertTrue(isinstance(board[4][2], numpy.int8))
+        self.assertTrue(isinstance(board[4, 2], numpy.int8))
         count = board_obj.get_count()
         self.assertEqual(len(count), 3)
         self.assertEqual(sum(count), 8 * 8)
+
+    def test_update(self):
+        board_obj = Board(4, 4, 4)
+        board_obj.board = numpy.array([[0, 0, 0, 0],
+                                       [1, 1, 2, 1],
+                                       [2, 2, 2, 2],
+                                       [3, 3, 2, 3]])
+        to_remove = [(2, 0), (2, 1), (1, 2), (2, 2), (3, 2), (2, 3)]
+        board_obj.update(to_remove)
+        self.assertEqual(board_obj.board[1, 0], 0)
+        self.assertEqual(board_obj.board[1, 1], 0)
+        self.assertEqual(board_obj.board[1, 3], 0)
+        self.assertEqual(board_obj.board[2, 0], 1)
+        self.assertEqual(board_obj.board[2, 1], 1)
+        self.assertEqual(board_obj.board[2, 3], 1)
+        self.assertEqual(board_obj.board[3, 0], 3)
+        self.assertEqual(board_obj.board[3, 1], 3)
+        self.assertEqual(board_obj.board[3, 2], 0)
+        self.assertEqual(board_obj.board[3, 3], 3)
+        value, count = numpy.unique(board_obj.board, return_counts=True)
+        count_dict = dict(zip(value, count))
+        self.assertRaises(KeyError, lambda: count_dict[-1])
+        # self.assertEqual(count_dict[-1], 0)
+        self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
+
+    def test_update_2(self):
+        board_obj = Board(4, 4, 3)
+        board_obj.board = numpy.array([[0, 1, 1, 1],
+                                       [1, 1, 2, 1],
+                                       [2, 2, 1, 2],
+                                       [2, 1, 2, 2]])
+        to_remove = [(1, 0), (0, 1), (0, 2), (0, 3), (1, 3), (2, 2), (3, 1)]
+        board_obj.update(to_remove)
+        self.assertEqual(board_obj.board[1, 0], 0)
+        self.assertEqual(board_obj.board[2, 0], 2)
+        self.assertEqual(board_obj.board[2, 1], 1)
+        self.assertEqual(board_obj.board[2, 2], 2)
+        self.assertEqual(board_obj.board[2, 3], 2)
+        self.assertEqual(board_obj.board[3, 0], 2)
+        self.assertEqual(board_obj.board[3, 1], 2)
+        self.assertEqual(board_obj.board[3, 2], 2)
+        self.assertEqual(board_obj.board[3, 3], 2)
+        value, count = numpy.unique(board_obj.board, return_counts=True)
+        count_dict = dict(zip(value, count))
+        self.assertRaises(KeyError, lambda: count_dict[-1])
+        # self.assertEqual(count_dict[-1], 0)
+        self.assertTrue(-1 < numpy.amax(board_obj.board) < 3)
 
 
 class BoardSpriteTest(unittest.TestCase):

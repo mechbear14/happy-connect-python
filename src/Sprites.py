@@ -12,6 +12,7 @@ class BoardSprite(Sprite):
         Sprite.__init__(self)
         self.image = surface
         self.rect = surface.get_rect()
+        self.board = board
 
         width, height = self.rect.width, self.rect.height
         self.board_row_count, self.board_column_count = board.get_board().shape
@@ -30,7 +31,11 @@ class BoardSprite(Sprite):
         self.block_images = block_images
 
         self.blocks = []
-        for array_index, block_kind in enumerate(board.get_board().flat):
+        self.sync_board()
+
+    def sync_board(self):
+        self.blocks = []
+        for array_index, block_kind in enumerate(self.board.get_board().flat):
             row, column = divmod(array_index, int(self.board_column_count))
             screen_position = Vector2()
             screen_position.x = column * self.block_size.x
