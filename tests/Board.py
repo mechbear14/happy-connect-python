@@ -27,21 +27,23 @@ class BoardTest(unittest.TestCase):
                                        [2, 2, 2, 2],
                                        [3, 3, 2, 3]])
         to_remove = [(2, 0), (2, 1), (1, 2), (2, 2), (3, 2), (2, 3)]
-        board_obj.update(to_remove)
-        self.assertEqual(board_obj.board[1, 0], 0)
-        self.assertEqual(board_obj.board[1, 1], 0)
-        self.assertEqual(board_obj.board[1, 3], 0)
-        self.assertEqual(board_obj.board[2, 0], 1)
-        self.assertEqual(board_obj.board[2, 1], 1)
-        self.assertEqual(board_obj.board[2, 3], 1)
-        self.assertEqual(board_obj.board[3, 0], 3)
-        self.assertEqual(board_obj.board[3, 1], 3)
-        self.assertEqual(board_obj.board[3, 2], 0)
-        self.assertEqual(board_obj.board[3, 3], 3)
+        diff = board_obj.update(to_remove)
+        test_indices = [(1, 0), (1, 1), (1, 3), (2, 0), (2, 1), (2, 3), (3, 0),
+                        (3, 1), (3, 2), (3, 3)]
+        expected = [0, 0, 0, 1, 1, 1, 3, 3, 0, 3]
+        for i, e in zip(test_indices, expected):
+            self.assertEqual(board_obj.board[i[0], i[1]], e)
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
+
+        expected_animations = [(2, 0, -1, -1), (2, 1, -1, -1), (1, 2, -1, -1), (2, 2, -1, -1),
+                               (3, 2, -1, -1), (2, 3, -1, -1), (1, 0, 2, 0), (0, 0, 1, 0),
+                               (-1, 0, 0, 0), (1, 1, 2, 1), (0, 1, 1, 1), (-1, 1, 0, 1),
+                               (0, 2, 3, 2), (-1, 2, 2, 2), (-2, 2, 1, 2), (-3, 2, 0, 2),
+                               (1, 3, 2, 3), (0, 3, 1, 3), (-1, 3, 0, 3)]
+        self.assertCountEqual(diff, expected_animations)
 
     def test_update_2(self):
         board_obj = Board(4, 4, 3)
@@ -50,20 +52,23 @@ class BoardTest(unittest.TestCase):
                                        [2, 2, 1, 2],
                                        [2, 1, 2, 2]])
         to_remove = [(1, 0), (0, 1), (0, 2), (0, 3), (1, 3), (2, 2), (3, 1)]
-        board_obj.update(to_remove)
-        self.assertEqual(board_obj.board[1, 0], 0)
-        self.assertEqual(board_obj.board[2, 0], 2)
-        self.assertEqual(board_obj.board[2, 1], 1)
-        self.assertEqual(board_obj.board[2, 2], 2)
-        self.assertEqual(board_obj.board[2, 3], 2)
-        self.assertEqual(board_obj.board[3, 0], 2)
-        self.assertEqual(board_obj.board[3, 1], 2)
-        self.assertEqual(board_obj.board[3, 2], 2)
-        self.assertEqual(board_obj.board[3, 3], 2)
+        diff = board_obj.update(to_remove)
+        test_indices = [(1, 0), (2, 0), (2, 1), (2, 2), (2, 3), (3, 0),
+                        (3, 1), (3, 2), (3, 3)]
+        expected = [0, 2, 1, 2, 2, 2, 2, 2, 2]
+        for i, e in zip(test_indices, expected):
+            self.assertEqual(board_obj.board[i[0], i[1]], e)
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 3)
+
+        expected_animations = [(1, 0, -1, -1), (0, 1, -1, -1), (0, 2, -1, -1), (0, 3, -1, -1),
+                               (1, 3, -1, -1), (2, 2, -1, -1), (3, 1, -1, -1), (0, 0, 1, 0),
+                               (1, 1, 2, 1), (2, 1, 3, 1), (1, 2, 2, 2), (-1, 0, 0, 0),
+                               (-1, 1, 1, 1), (-2, 1, 0, 1), (-1, 2, 1, 2), (-2, 2, 0, 2),
+                               (-1, 3, 1, 3), (-2, 3, 0, 3)]
+        self.assertCountEqual(diff, expected_animations)
 
     def test_update_3(self):
         board_obj = Board(4, 4, 4)
@@ -73,21 +78,23 @@ class BoardTest(unittest.TestCase):
                                        [3, 3, 2, 3]])
         to_remove = [(2, 0), (2, 1), (1, 2), (2, 2), (3, 2), (2, 3)]
         to_remove.reverse()
-        board_obj.update(to_remove)
-        self.assertEqual(board_obj.board[1, 0], 0)
-        self.assertEqual(board_obj.board[1, 1], 0)
-        self.assertEqual(board_obj.board[1, 3], 0)
-        self.assertEqual(board_obj.board[2, 0], 1)
-        self.assertEqual(board_obj.board[2, 1], 1)
-        self.assertEqual(board_obj.board[2, 3], 1)
-        self.assertEqual(board_obj.board[3, 0], 3)
-        self.assertEqual(board_obj.board[3, 1], 3)
-        self.assertEqual(board_obj.board[3, 2], 0)
-        self.assertEqual(board_obj.board[3, 3], 3)
+        diff = board_obj.update(to_remove)
+        test_indices = [(1, 0), (1, 1), (1, 3), (2, 0), (2, 1), (2, 3), (3, 0),
+                        (3, 1), (3, 2), (3, 3)]
+        expected = [0, 0, 0, 1, 1, 1, 3, 3, 0, 3]
+        for i, e in zip(test_indices, expected):
+            self.assertEqual(board_obj.board[i[0], i[1]], e)
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
+
+        expected_animations = [(2, 0, -1, -1), (2, 1, -1, -1), (1, 2, -1, -1), (2, 2, -1, -1),
+                               (3, 2, -1, -1), (2, 3, -1, -1), (1, 0, 2, 0), (0, 0, 1, 0),
+                               (-1, 0, 0, 0), (1, 1, 2, 1), (0, 1, 1, 1), (-1, 1, 0, 1),
+                               (0, 2, 3, 2), (-1, 2, 2, 2), (-2, 2, 1, 2), (-3, 2, 0, 2),
+                               (1, 3, 2, 3), (0, 3, 1, 3), (-1, 3, 0, 3)]
+        self.assertCountEqual(diff, expected_animations)
 
 
 class BoardSpriteTest(unittest.TestCase):
