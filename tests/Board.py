@@ -41,7 +41,6 @@ class BoardTest(unittest.TestCase):
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
-        # self.assertEqual(count_dict[-1], 0)
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
 
     def test_update_2(self):
@@ -64,7 +63,6 @@ class BoardTest(unittest.TestCase):
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
-        # self.assertEqual(count_dict[-1], 0)
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 3)
 
     def test_update_3(self):
@@ -89,7 +87,6 @@ class BoardTest(unittest.TestCase):
         value, count = numpy.unique(board_obj.board, return_counts=True)
         count_dict = dict(zip(value, count))
         self.assertRaises(KeyError, lambda: count_dict[-1])
-        # self.assertEqual(count_dict[-1], 0)
         self.assertTrue(-1 < numpy.amax(board_obj.board) < 4)
 
 
