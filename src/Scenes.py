@@ -24,37 +24,54 @@ class MainScene(Scene):
         self.path_sprite = PathSprite(self.board_position, self.board_size,
                                       self.board_sprite.get_block_size())
 
+        self.animation_playing = False
+
     def on_mouse_down(self, button: Tuple, position: Tuple):
-        if button[0]:
-            block = mouse_row, mouse_col = self.mouse_on_which_block(position)
-            if mouse_row > -1 and mouse_col > -1:
-                self.selecting = True
-                self.selected.append(block)
+        if not self.animation_playing:
+            if button[0]:
+                block = mouse_row, mouse_col = self.mouse_on_which_block(position)
+                if mouse_row > -1 and mouse_col > -1:
+                    self.selecting = True
+                    self.selected.append(block)
 
     def on_mouse_move(self, position: Tuple):
-        if self.selecting:
-            board = self.board.get_board()
-            mouse = mouse_row, mouse_col = self.mouse_on_which_block(position)
-            last_row, last_col = self.selected[-1]
-            backtrack = len(self.selected) > 1 and mouse == self.selected[-2]
-            if backtrack:
-                self.selected.pop()
-                return
-            on_screen = mouse_row > -1 and mouse_col > -1
-            is_neighbour = abs(mouse_row - last_row) < 2 and abs(mouse_col - last_col) < 2
-            same_colour = board[mouse_row][mouse_col] == board[last_row][last_col]
-            not_same = not (mouse_row == last_row and mouse_col == last_col)
-            no_cross = self.selected.count((mouse_row, mouse_col)) == 0
-            correct = all([on_screen, is_neighbour, same_colour, not_same, no_cross])
-            if correct:
-                self.selected.append(mouse)
+        if not self.animation_playing:
+            if self.selecting:
+                board = self.board.get_board()
+                mouse = mouse_row, mouse_col = self.mouse_on_which_block(position)
+                last_row, last_col = self.selected[-1]
+                backtrack = len(self.selected) > 1 and mouse == self.selected[-2]
+                if backtrack:
+                    self.selected.pop()
+                    return
+                on_screen = mouse_row > -1 and mouse_col > -1
+                is_neighbour = abs(mouse_row - last_row) < 2 and abs(mouse_col - last_col) < 2
+                same_colour = board[mouse_row][mouse_col] == board[last_row][last_col]
+                not_same = not (mouse_row == last_row and mouse_col == last_col)
+                no_cross = self.selected.count((mouse_row, mouse_col)) == 0
+                correct = all([on_screen, is_neighbour, same_colour, not_same, no_cross])
+                if correct:
+                    self.selected.append(mouse)
 
     def on_mouse_up(self, button: Tuple, position: Tuple):
-        if len(self.selected) > 2:
-            self.board.update(self.selected)
-        self.board_sprite.sync_board()
-        self.selected = []
-        self.selecting = False
+        if not self.animation_playing:
+            if len(self.selected) > 2:
+                diff = self.board.update(self.selected)
+                self.board_sprite.setup_animation(diff, self.board.get_board(), pygame.time.get_ticks())
+            # self.board_sprite.sync_board()
+            self.selected = []
+            self.selecting = False
+
+    def on_animation_begin(self):
+        self.animation_playing = True
+
+    def on_animation_end(self):
+        self.animation_playing = False
+        self.board_sprite.on_animation_end()
+
+    def update(self, ticks: int):
+        if self.animation_playing:
+            self.board_sprite.update(ticks)
 
     def render(self):
         self.board_sprite.render(self.context.screen, self.board_position, self.selected)

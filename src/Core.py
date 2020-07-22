@@ -41,7 +41,7 @@ class Board:
                 new_column = numpy.ones(row_count, dtype=numpy.int8) * -1
                 new_column[len(rows_to_remove):row_count] = self.board[numpy.array(remaining_rows), column]
                 self.board[:, column] = new_column
-            to_shift_animation = [(prev_row, column, prev_row + shift, column)
+            to_shift_animation = [(prev_row, column, prev_row + int(shift), column)
                                   for prev_row, shift in enumerate(shift_lengths_for_animation)
                                   if shift > 0]
             to_add_animation = [(r - len(rows_to_remove), column, r, column)
