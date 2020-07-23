@@ -140,7 +140,9 @@ class BlockSprite(Sprite):
         return self.base_rect
 
     def slide(self, begin_state: Vector2, end_state: Vector2, progress: float):
-        target = begin_state.lerp(end_state, progress)
+        # mapped_progress = 0.5 + (progress - 0.25) * (progress - 0.5) * (progress - 0.75) / (0.75 * 0.25)
+        mapped_progress = progress
+        target = begin_state.lerp(end_state, mapped_progress)
         base_x, base_y = self.base_rect.topleft
         dx, dy = int(target.x) - base_x, int(target.y) - base_y
         self.rect = self.base_rect.move(dx, dy)
