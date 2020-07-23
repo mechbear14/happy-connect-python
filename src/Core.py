@@ -1,4 +1,5 @@
 import numpy
+from random import choice, randint
 from typing import List, Tuple, Dict
 
 
@@ -59,3 +60,76 @@ class Board:
         self.count_blocks()
 
         return diff
+
+    def is_possible_to_move(self) -> bool:
+        rows, cols = self.dimension
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        component_numbers = numpy.ones(self.dimension) * -1
+        current_component_number = 0
+        visited = numpy.zeros([rows, cols], numpy.bool)
+
+        def visit(row: int, col: int):
+            component_numbers[row, col] = current_component_number
+            visited[row, col] = True
+
+            neighbours = [d for d in directions
+                          if -1 < row + d[0] < rows and -1 < col + d[1] < cols]
+            neighbours = [n for n in neighbours
+                          if self.board[row, col] == self.board[row + n[0], col + n[1]]]
+            for n in neighbours:
+                if not visited[row + n[0], col + n[1]]:
+                    visit(row + n[0], col + n[1])
+
+        for r in range(rows):
+            for c in range(cols):
+                if not visited[r, c]:
+                    visit(r, c)
+                    current_component_number += 1
+
+        _, count = numpy.unique(component_numbers, return_counts=True)
+        return numpy.amax(count) > 2
+
+    def shuffle(self):
+        new_board = numpy.ones(self.dimension, numpy.int8) * -1
+        valid_option = [kind for kind, count in enumerate(self.count) if count > 2]
+        counts = self.count.copy()
+        new_kind = choice(valid_option)
+        new_count = numpy.floor(2 + numpy.random.rand(1) * self.dimension[0]).astype(numpy.int)
+        new_count = numpy.min([new_count[0], counts[new_kind]])
+
+        rows, cols = self.dimension
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        positions = [(randint(0, rows - 1), randint(0, cols - 1))]
+        for current in range(new_count):
+            row, col = positions[-1]
+            new_board[row, col] = new_kind
+            if current < new_count - 1:
+                neighbours = [d for d in directions
+                              if -1 < row + d[0] < rows and -1 < col + d[1] < cols]
+                neighbours = [n for n in neighbours
+                              if not new_board[row + n[0], col + n[1]] == new_kind]
+                d = choice(neighbours)
+                next_row, next_column = row + d[0], col + d[1]
+                positions.append((next_row, next_column))
+        original_positions = numpy.argwhere(self.board == new_kind)[0:new_count]
+        original_positions = [(op[0], op[1]) for op in original_positions]
+
+        before_shuffle = [(p[0], p[1]) for p in numpy.argwhere(self.board > -1)]
+        for op in original_positions:
+            before_shuffle.remove(op)
+        after_shuffle = [(p[0], p[1]) for p in numpy.argwhere(new_board < 0)]
+
+        indices = [i for i, _ in enumerate(before_shuffle)]
+        indices.reverse()
+        indices = indices[:-1]
+        for a in indices:
+            b = randint(0, a)
+            before_shuffle[a], before_shuffle[b] = before_shuffle[b], before_shuffle[a]
+        for before_after in zip(before_shuffle, after_shuffle):
+            src, dest = before_after
+            src_row, src_col = src
+            dest_row, dest_col = dest
+            new_board[dest_row, dest_col] = self.board[src_row, src_col]
+
+        self.board = new_board
+        self.count_blocks()

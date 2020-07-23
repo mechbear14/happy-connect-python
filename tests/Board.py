@@ -96,6 +96,43 @@ class BoardTest(unittest.TestCase):
                                (1, 3, 2, 3), (0, 3, 1, 3), (-1, 3, 0, 3)]
         self.assertCountEqual(diff, expected_animations)
 
+    def test_check_if_possible_1(self):
+        board = Board(4, 4, 3)
+        board.board = numpy.array([[1, 0, 0, 1],
+                                   [0, 2, 2, 0],
+                                   [0, 1, 0, 1],
+                                   [2, 0, 2, 2]])
+        self.assertTrue(board.is_possible_to_move())
+
+    def test_check_if_possible_2(self):
+        board = Board(4, 4, 3)
+        board.board = numpy.array([[0, 0, 1, 0],
+                                   [0, 1, 2, 2],
+                                   [2, 1, 0, 1],
+                                   [2, 0, 2, 1]])
+        self.assertTrue(board.is_possible_to_move())
+
+    def test_check_if_possible_3(self):
+        board = Board(4, 4, 3)
+        board.board = numpy.array([[0, 1, 0, 0],
+                                   [0, 2, 2, 1],
+                                   [1, 1, 0, 1],
+                                   [2, 0, 2, 2]])
+        self.assertTrue(not board.is_possible_to_move())
+
+    def test_shuffle(self):
+        board = Board(4, 4, 3)
+        board.board = numpy.array([[0, 1, 0, 0],
+                                   [0, 2, 2, 1],
+                                   [1, 1, 0, 1],
+                                   [2, 0, 2, 2]])
+        prev_count = [6, 5, 5]
+        board.count = prev_count.copy()
+        board.shuffle()
+        new_count = board.count
+        self.assertTrue(board.is_possible_to_move())
+        self.assertEqual(prev_count, new_count)
+
 
 class BoardSpriteTest(unittest.TestCase):
     def test_create(self):
