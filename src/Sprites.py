@@ -7,7 +7,7 @@ from pygame.locals import *
 from pygame.draw import circle, aalines
 from typing import List, Tuple
 from src.Core import Board
-from src.Game import Animation, Timeline, ANIMATION_BEGIN
+from src.Game import Animation, Timeline, ANIMATION_BEGIN, Play
 
 
 class BoardSprite(Sprite):
@@ -37,7 +37,7 @@ class BoardSprite(Sprite):
         self.blocks = []
         self.sync_board()
 
-        self.timeline = Timeline()
+        self.timeline = Timeline(0)
 
     def sync_board(self):
         self.new_blocks = [None] * (self.board_row_count * self.board_column_count)
@@ -106,7 +106,7 @@ class BoardSprite(Sprite):
 
     def play_animation(self, begin_tick: int):
         self.timeline.animation_begin(begin_tick)
-        event = pygame.event.Event(ANIMATION_BEGIN, {})
+        event = pygame.event.Event(ANIMATION_BEGIN, dict(timeline_id=0))
         pygame.event.post(event)
 
     def on_animation_end(self):
@@ -182,3 +182,67 @@ class PathSprite(Sprite):
             for centre in circle_centres:
                 circle(surface, Color(255, 255, 255), centre, 5)
             screen.blit(surface, self.rect, special_flags=BLEND_MAX)
+
+
+class PlaySprite(Sprite):
+    def __init__(self, play: Play, play_image: Surface, play_position: Vector2):
+        Sprite.__init__(self)
+        self.timeline = Timeline(1)
+        self.play_position = play_position
+        self.play = play
+        self.target = self.play.target.copy()
+        self.picked_count = self.play.picked_counts.copy()
+        self.updating_kind = None
+        self.centre_rights = [(140, 25), (240, 25), (340, 25), (140, 75), (240, 75), (340, 75)]
+        self.top_lefts = [(50, 0), (150, 0), (250, 0), (50, 50), (150, 50), (250, 50)]
+        self.image = play_image
+
+        px, py = int(play_position.x), int(play_position.y)
+        self.rect = self.image.get_rect(topleft=(px, py))
+
+    def add_animation(self, update_kind: int, update_count: int):
+        self.updating_kind = update_kind
+        begin_state = self.picked_count[update_kind]
+        end_state = begin_state + update_count
+        animation = Animation(begin_state=begin_state,
+                              end_state=end_state,
+                              delay=self.timeline.get_last_time(),
+                              duration=update_count * 100,
+                              setter=self.set_text)
+        self.timeline.add_animation(animation)
+
+    def play_animation(self, begin_tick: int):
+        self.timeline.animation_begin(begin_tick)
+        event = pygame.event.Event(ANIMATION_BEGIN, dict(timeline_id=1))
+        pygame.event.post(event)
+
+    def on_animation_end(self):
+        self.updating_kind = None
+        self.sync_play()
+        self.timeline.reset_clock()
+
+    def sync_play(self):
+        self.target = self.play.target.copy()
+        self.picked_count = self.play.picked_counts.copy()
+
+    def set_text(self, begin_state: int, end_state: int, progress: float):
+        current_count = begin_state + int(numpy.floor(progress * (end_state - begin_state)))
+        current_count = min(current_count, self.target[self.updating_kind])
+        self.picked_count[self.updating_kind] = current_count
+
+    def update(self, ticks: int):
+        self.timeline.update(ticks)
+
+    def render(self, screen: Surface, icon_list: List[Surface]):
+        pixels = self.image.copy()
+        font = Font(None, 24)
+        for i, _ in enumerate(self.target):
+            current = self.picked_count[i]
+            target = self.target[i]
+            topleft = self.top_lefts[i]
+            centre_right = self.centre_rights[i]
+            block_image = icon_list[i]
+            pixels.blit(block_image, block_image.get_rect(topleft=topleft))
+            font_surface = font.render(f"{current} / {target}", True, Color(255, 255, 255))
+            pixels.blit(font_surface, font_surface.get_rect(midright=centre_right))
+        screen.blit(pixels, self.rect)

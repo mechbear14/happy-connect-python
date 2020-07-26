@@ -3,7 +3,7 @@ from collections import namedtuple
 import pygame
 from pygame.locals import *
 from pygame.time import Clock
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, List, Callable
 
 
 class Scene:
@@ -24,10 +24,10 @@ class Scene:
     def on_mouse_up(self, button: Tuple, position: Tuple):
         pass
 
-    def on_animation_begin(self):
+    def on_animation_begin(self, timeline_id: int):
         pass
 
-    def on_animation_end(self):
+    def on_animation_end(self, timeline_id: int):
         pass
 
     def update(self, ticks: int):
@@ -54,9 +54,11 @@ class Scene:
                     position = pygame.mouse.get_pos()
                     self.on_mouse_up(buttons, position)
                 elif event.type == ANIMATION_BEGIN:
-                    self.on_animation_begin()
+                    timeline_id = event.timeline_id
+                    self.on_animation_begin(timeline_id)
                 elif event.type == ANIMATION_END:
-                    self.on_animation_end()
+                    timeline_id = event.timeline_id
+                    self.on_animation_end(timeline_id)
             self.update(ticks)
             self.render()
             pygame.display.update()
@@ -72,7 +74,8 @@ ANIMATION_END = pygame.event.custom_type()
 
 
 class Timeline:
-    def __init__(self):
+    def __init__(self, timeline_id: int):
+        self.timeline_id = timeline_id
         self.animations = []
         self.begin_tick = 0
 
@@ -101,9 +104,31 @@ class Timeline:
                 animation.setter(animation.begin_state, animation.end_state, 1.0)
                 self.animations.remove(animation)
         if len(self.animations) == 0:
-            event = pygame.event.Event(ANIMATION_END, {})
+            event = pygame.event.Event(ANIMATION_END, dict(timeline_id=self.timeline_id))
             pygame.event.post(event)
             self.reset_clock()
 
     def reset_clock(self):
         self.begin_tick = 0
+
+
+class Play:
+    def __init__(self, target: List[int], moves: int, on_win: Callable, on_lose: Callable):
+        kind_count = len(target)
+        self.target = target.copy()
+        self.moves = moves
+        self.picked_counts = [0] * kind_count
+        self.on_win = on_win
+        self.on_lose = on_lose
+
+    def update(self, kind: int, count: int) -> (bool, bool):
+        self.picked_counts[kind] = min(self.picked_counts[kind] + count, self.target[kind])
+        self.moves -= 1
+        fulfilled = [self.target[i] == count for i, count in enumerate(self.picked_counts)]
+        won = all(fulfilled)
+        lost = not all(fulfilled) and self.moves < 1
+        if won:
+            self.on_win(self.picked_counts)
+        if lost:
+            self.on_lose(self.picked_counts)
+        return won, lost

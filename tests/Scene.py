@@ -6,6 +6,7 @@ import numpy
 from src.Core import Board
 from src.Scenes import MainScene
 from src.Sprites import BoardSprite
+from src.Game import Play
 
 pygame.init()
 
@@ -110,6 +111,42 @@ class MainSceneTests(unittest.TestCase):
         scene.on_mouse_move(position[10])
         scene.on_mouse_move(position[14])
         self.assertEqual(scene.selected, [(2, 0), (2, 1), (2, 2), (2, 3), (1, 2)])
+
+
+end_game = None
+
+
+class PlayTest(unittest.TestCase):
+    @staticmethod
+    def on_win(picked_count):
+        global end_game
+        end_game = picked_count
+
+    @staticmethod
+    def on_lose(picked_count):
+        global end_game
+        end_game = picked_count
+
+    def test_win(self):
+        global end_game
+        end_game = None
+        target = [2, 2, 2, 2, 2, 2]
+        play = Play(target, 10, PlayTest.on_win, PlayTest.on_lose)
+        for r in range(6):
+            won, lost = play.update(r, 3)
+            self.assertEqual(play.picked_counts[r], target[r])
+            self.assertTrue(not won if r < 5 else won)
+            self.assertTrue(not lost)
+        self.assertEqual(end_game, target)
+
+    def test_lose(self):
+        target = [2, 2, 2, 2, 2, 2]
+        play = Play(target, 2, PlayTest.on_win, PlayTest.on_lose)
+        play.update(0, 3)
+        won, lost = play.update(1, 3)
+        self.assertTrue(not won)
+        self.assertTrue(lost)
+        self.assertEqual(end_game, [2, 2, 0, 0, 0, 0])
 
 
 if __name__ == '__main__':

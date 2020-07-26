@@ -2,7 +2,7 @@ import pygame
 from typing import NamedTuple, Tuple
 from src.Game import Scene
 from src.Core import Board
-from src.Sprites import BoardSprite, PathSprite
+from src.Sprites import BoardSprite, PathSprite, PlaySprite
 
 
 class MainScene(Scene):
@@ -13,7 +13,7 @@ class MainScene(Scene):
         self.kinds_of_blocks = 6
 
         self.board = Board(self.rows, self.columns, self.kinds_of_blocks)
-        self.board_position = pygame.Vector2(0, 100)
+        self.board_position = pygame.Vector2(0, 200)
         self.board_size = pygame.Vector2(400, 400)
         board_size_int = int(self.board_size.x), int(self.board_size.y)
         board_region = pygame.Surface(board_size_int)
@@ -25,10 +25,13 @@ class MainScene(Scene):
         self.path_sprite = PathSprite(self.board_position, self.board_size,
                                       self.board_sprite.get_block_size())
 
-        self.animation_playing = False
+        play_position = pygame.Vector2(0, 50)
+        self.play = self.context.play
+        self.play_sprite = PlaySprite(context.play, context.play_image, play_position)
+        self.animation_playing = [False, False]
 
     def on_mouse_down(self, button: Tuple, position: Tuple):
-        if not self.animation_playing:
+        if not any(self.animation_playing):
             if button[0]:
                 block = mouse_row, mouse_col = self.mouse_on_which_block(position)
                 if mouse_row > -1 and mouse_col > -1:
@@ -36,7 +39,7 @@ class MainScene(Scene):
                     self.selected.append(block)
 
     def on_mouse_move(self, position: Tuple):
-        if not self.animation_playing:
+        if not any(self.animation_playing):
             if self.selecting:
                 board = self.board.get_board()
                 mouse = mouse_row, mouse_col = self.mouse_on_which_block(position)
@@ -55,32 +58,48 @@ class MainScene(Scene):
                     self.selected.append(mouse)
 
     def on_mouse_up(self, button: Tuple, position: Tuple):
-        if not self.animation_playing:
+        if not any(self.animation_playing):
             if len(self.selected) > 2:
+                board = self.board.get_board()
+                row, col = self.selected[0]
+                update_kind = board[row, col]
+                update_count = len(self.selected)
+                self.play.update(update_kind, update_count)
                 diff = self.board.update(self.selected)
+
                 self.board_sprite.add_animation(diff)
                 self.board_sprite.play_animation(pygame.time.get_ticks())
+                self.play_sprite.add_animation(update_kind, update_count)
+                self.play_sprite.play_animation(pygame.time.get_ticks())
             self.selected = []
             self.selecting = False
 
-    def on_animation_begin(self):
-        self.animation_playing = True
+    def on_animation_begin(self, timeline_id: int):
+        self.animation_playing[timeline_id] = True
 
-    def on_animation_end(self):
-        self.animation_playing = False
-        self.board_sprite.on_animation_end()
-        if not self.board.is_possible_to_move():
-            diff = self.board.shuffle()
-            self.board_sprite.add_animation(diff)
-            self.board_sprite.play_animation(pygame.time.get_ticks())
+    def on_animation_end(self, timeline_id: int):
+        self.animation_playing[timeline_id] = False
+        if timeline_id == 0:
+            self.board_sprite.on_animation_end()
+        elif timeline_id == 1:
+            self.play_sprite.on_animation_end()
+
+        if not any(self.animation_playing):
+            if not self.board.is_possible_to_move():
+                diff = self.board.shuffle()
+                self.board_sprite.add_animation(diff)
+                self.board_sprite.play_animation(pygame.time.get_ticks())
 
     def update(self, ticks: int):
-        if self.animation_playing:
+        if self.animation_playing[0]:
             self.board_sprite.update(ticks)
+        if self.animation_playing[1]:
+            self.play_sprite.update(ticks)
 
     def render(self):
         self.board_sprite.render(self.context.screen, self.board_position, self.selected)
         self.path_sprite.render(self.context.screen, self.selected)
+        self.play_sprite.render(self.context.screen, self.board_sprite.block_images)
 
     def on_destroy(self):
         pygame.quit()
