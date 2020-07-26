@@ -1,12 +1,12 @@
 import pygame
-from typing import NamedTuple, Tuple
-from src.Game import Scene
+from typing import Tuple
+from src.Game import Scene, Context
 from src.Core import Board
 from src.Sprites import BoardSprite, PathSprite, PlaySprite
 
 
 class MainScene(Scene):
-    def __init__(self, context: NamedTuple):
+    def __init__(self, context: Context):
         Scene.__init__(self, context)
         self.rows = 8
         self.columns = 8
@@ -17,8 +17,8 @@ class MainScene(Scene):
         self.board_size = pygame.Vector2(400, 400)
         board_size_int = int(self.board_size.x), int(self.board_size.y)
         board_region = pygame.Surface(board_size_int)
-        board_region.blit(self.context.board_image, (0, 0, 400, 400))
-        self.board_sprite = BoardSprite(self.board, board_region, context.icon_list)
+        board_region.blit(self.context.assets["board_image"], (0, 0, 400, 400))
+        self.board_sprite = BoardSprite(self.board, board_region, context.assets["icon_list"])
 
         self.selected = []
         self.selecting = False
@@ -26,9 +26,12 @@ class MainScene(Scene):
                                       self.board_sprite.get_block_size())
 
         play_position = pygame.Vector2(0, 50)
-        self.play = self.context.play
-        self.play_sprite = PlaySprite(context.play, context.play_image, play_position)
+        self.play = self.context.data["play"]
+        self.play_sprite = PlaySprite(context.data["play"], context.assets["play_image"], play_position)
         self.animation_playing = [False, False]
+
+    def on_create(self, context: Context):
+        pass
 
     def on_mouse_down(self, button: Tuple, position: Tuple):
         if not any(self.animation_playing):
@@ -101,10 +104,6 @@ class MainScene(Scene):
         self.path_sprite.render(self.context.screen, self.selected)
         self.play_sprite.render(self.context.screen, self.board_sprite.block_images)
 
-    def on_destroy(self):
-        pygame.quit()
-        raise SystemExit
-
     def mouse_on_which_block(self, position: Tuple) -> Tuple:
         block_size = self.board_sprite.get_block_size()
         mouse_position = pygame.Vector2(position)
@@ -123,3 +122,18 @@ class MainScene(Scene):
             return row_col
         else:
             return -1, -1
+
+
+class TitleScene(Scene):
+    def __init__(self, context: Context):
+        Scene.__init__(self, context)
+
+
+class WinScene(Scene):
+    def __init__(self, context: Context):
+        Scene.__init__(self, context)
+
+
+class LoseScene(Scene):
+    def __init__(self, context: Context):
+        Scene.__init__(self, context)

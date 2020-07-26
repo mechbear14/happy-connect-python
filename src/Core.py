@@ -21,6 +21,9 @@ class Board:
     def get_count(self) -> List[int]:
         return self.count
 
+    def get_board_at_position(self, row: int, col: int):
+        return self.board[row, col]
+
     def count_blocks(self) -> None:
         value, count = numpy.unique(self.board, return_counts=True)
         count_dict = dict(zip(value, count))

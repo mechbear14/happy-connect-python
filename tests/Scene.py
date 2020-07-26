@@ -12,8 +12,10 @@ pygame.init()
 
 screen = pygame.Surface((400, 600))
 board_image = pygame.Surface((400, 400))
-Context = namedtuple("Context", ["screen", "icon_list", "board_image"])
-context = Context(screen=screen, icon_list=None, board_image=board_image)
+assets = dict(icon_list=None, board_image=board_image)
+data = {}
+Context = namedtuple("Context", ["screen", "assets", "data"])
+context = Context(screen=screen, assets=assets, data=data)
 board = numpy.array([[0, 0, 0, 0],
                      [1, 1, 2, 1],
                      [2, 2, 2, 2],

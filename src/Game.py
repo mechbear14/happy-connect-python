@@ -3,14 +3,20 @@ from collections import namedtuple
 import pygame
 from pygame.locals import *
 from pygame.time import Clock
-from typing import NamedTuple, Tuple, List, Callable
+from typing import Tuple, List, Callable
+
+
+Context = namedtuple("Context", ["screen", "assets", "data"])
 
 
 class Scene:
-    def __init__(self, context: NamedTuple):
+    def __init__(self, context: Context):
         self.running = True
         self.context = context
         self.clock = Clock()
+
+    def on_create(self, context: Context):
+        pass
 
     def on_destroy(self):
         pass
@@ -37,6 +43,7 @@ class Scene:
         pass
 
     def mainloop(self):
+        self.on_create(self.context)
         while self.running:
             ticks = pygame.time.get_ticks()
             for event in pygame.event.get():
