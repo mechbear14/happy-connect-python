@@ -1,6 +1,6 @@
 import numpy
 from random import choice, randint
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 
 class Board:
@@ -11,6 +11,9 @@ class Board:
         self.board = numpy.floor(numpy.random.rand(rows, columns) * block_kind_count).astype(numpy.int8)
         self.count = []
         self.count_blocks()
+
+        if not self.is_possible_to_move():
+            self.shuffle()
 
     def get_board(self) -> numpy.ndarray:
         return self.board

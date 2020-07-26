@@ -155,11 +155,14 @@ class BlockSprite(Sprite):
 
     def render(self, board_surface: Surface, selected: bool = False):
         if self.show:
-            board_surface.blit(self.image, self.rect)
+            pixels = self.image.copy()
+            rect = self.image.get_rect(topleft=(0, 0))
+            # board_surface.blit(self.image, self.rect)
             if selected:
                 cover = Surface((self.image.get_size()))
                 cover.fill(Color(100, 100, 100))
-                board_surface.blit(cover, self.rect, special_flags=BLEND_MULT)
+                pixels.blit(cover, rect, special_flags=BLEND_MULT)
+            board_surface.blit(pixels, self.rect)
 
 
 class PathSprite(Sprite):
