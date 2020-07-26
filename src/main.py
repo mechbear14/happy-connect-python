@@ -1,8 +1,8 @@
 import pygame
 import os
 
-from src.Game import Context, Play
-from src.Scenes import MainScene
+from src.Game import Context, Play, Scene
+from src.Scenes import MainScene, TitleScene, WinScene, LoseScene
 
 pygame.init()
 
@@ -16,21 +16,32 @@ icon_list = [pygame.image.load(os.path.join(this_path, "..", "assets", filename)
 board_image = pygame.image.load(os.path.join(this_path, "..", "assets", "board.png"))
 play_image = pygame.image.load(os.path.join(this_path, "..", "assets", "play.png"))
 
+scenes = []
+
+
+def add_scene(next_scene: Scene):
+    scenes.append(next_scene)
+
+
 target = [10, 10, 10, 10, 10, 10]
 
 
 def on_win(*args):
-    print("You win")
+    scenes.append(WinScene(context))
+    pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
 
 
 def on_lose(*args):
-    print("You lose")
+    scenes.append(LoseScene(context))
+    pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
 
 
 play = Play(target, 40, on_win, on_lose)
 assets = dict(icon_list=icon_list, board_image=board_image, play_image=play_image)
-data = dict(play=play)
-scenes = [MainScene(Context(screen=screen, assets=assets, data=data))]
+data = dict(play=play, scenes=scenes)
+context = Context(screen, assets, data)
+
+add_scene(TitleScene(context))
 
 while len(scenes) > 0:
     scene = scenes.pop()

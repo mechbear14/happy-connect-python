@@ -1,5 +1,9 @@
 import pygame
+from pygame import Color
+from pygame.font import Font
+from pygame.rect import Rect
 from typing import Tuple
+
 from src.Game import Scene, Context
 from src.Core import Board
 from src.Sprites import BoardSprite, PathSprite, PlaySprite
@@ -127,13 +131,91 @@ class MainScene(Scene):
 class TitleScene(Scene):
     def __init__(self, context: Context):
         Scene.__init__(self, context)
+        board_position = (0, 125)
+        title_position = (200, 250)
+        title = "Happy Connect"
+        button_position = (200, 400)
+        button_text = "Start"
+
+        self.background = self.context.assets["board_image"]
+        self.background_rect = self.background.get_rect(topleft=board_position)
+        font = Font(None, 48)
+        self.title = font.render(title, True, Color(255, 255, 255))
+        self.title_rect = self.title.get_rect(center=title_position)
+        self.button = font.render(button_text, True, Color(255, 255, 255))
+        self.button_rect = self.button.get_rect(center=button_position)
+
+    def on_mouse_down(self, button: Tuple, position: Tuple):
+        if button[0] and self.button_rect.collidepoint(*position):
+            scenes = self.context.data["scenes"]
+            scenes.append(MainScene(self.context))
+            pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
+
+    def render(self):
+        screen = self.context.screen
+        screen.fill(Color(0, 0, 0))
+        screen.blit(self.background, self.background_rect)
+        screen.blit(self.title, self.title_rect)
+        screen.blit(self.button, self.button_rect)
 
 
 class WinScene(Scene):
     def __init__(self, context: Context):
         Scene.__init__(self, context)
+        board_position = (0, 125)
+        title_position = (200, 250)
+        title = "You achieved your target"
+        button_position = (200, 400)
+        button_text = "Back"
+
+        self.background = self.context.assets["board_image"]
+        self.background_rect = self.background.get_rect(topleft=board_position)
+        font = Font(None, 48)
+        self.title = font.render(title, True, Color(255, 255, 255))
+        self.title_rect = self.title.get_rect(center=title_position)
+        self.button = font.render(button_text, True, Color(255, 255, 255))
+        self.button_rect = self.button.get_rect(center=button_position)
+
+    def on_mouse_down(self, button: Tuple, position: Tuple):
+        if button[0] and self.button_rect.collidepoint(*position):
+            scenes = self.context.data["scenes"]
+            scenes.append(TitleScene(self.context))
+            pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
+
+    def render(self):
+        screen = self.context.screen
+        screen.fill(Color(0, 0, 0))
+        screen.blit(self.background, self.background_rect)
+        screen.blit(self.title, self.title_rect)
+        screen.blit(self.button, self.button_rect)
 
 
 class LoseScene(Scene):
     def __init__(self, context: Context):
         Scene.__init__(self, context)
+        board_position = (0, 125)
+        title_position = (200, 250)
+        title = "You didn't achieve your target"
+        button_position = (200, 400)
+        button_text = "Start again"
+
+        self.background = self.context.assets["board_image"]
+        self.background_rect = self.background.get_rect(topleft=board_position)
+        font = Font(None, 48)
+        self.title = font.render(title, True, Color(255, 255, 255))
+        self.title_rect = self.title.get_rect(center=title_position)
+        self.button = font.render(button_text, True, Color(255, 255, 255))
+        self.button_rect = self.button.get_rect(center=button_position)
+
+    def on_mouse_down(self, button: Tuple, position: Tuple):
+        if button[0] and self.button_rect.collidepoint(*position):
+            scenes = self.context.data["scenes"]
+            scenes.append(MainScene(self.context))
+            pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
+
+    def render(self):
+        screen = self.context.screen
+        screen.fill(Color(0, 0, 0))
+        screen.blit(self.background, self.background_rect)
+        screen.blit(self.title, self.title_rect)
+        screen.blit(self.button, self.button_rect)
