@@ -10,13 +10,14 @@ class MainScene(Scene):
         Scene.__init__(self, context)
         self.rows = 8
         self.columns = 8
-        self.kinds_of_blocks = 3
+        self.kinds_of_blocks = 6
 
         self.board = Board(self.rows, self.columns, self.kinds_of_blocks)
         self.board_position = pygame.Vector2(0, 100)
         self.board_size = pygame.Vector2(400, 400)
         board_size_int = int(self.board_size.x), int(self.board_size.y)
         board_region = pygame.Surface(board_size_int)
+        board_region.blit(self.context.board_image, (0, 0, 400, 400))
         self.board_sprite = BoardSprite(self.board, board_region, context.icon_list)
 
         self.selected = []
@@ -57,8 +58,8 @@ class MainScene(Scene):
         if not self.animation_playing:
             if len(self.selected) > 2:
                 diff = self.board.update(self.selected)
-                self.board_sprite.setup_animation(diff, self.board.get_board(), pygame.time.get_ticks())
-            # self.board_sprite.sync_board()
+                self.board_sprite.add_animation(diff)
+                self.board_sprite.play_animation(pygame.time.get_ticks())
             self.selected = []
             self.selecting = False
 
@@ -68,6 +69,10 @@ class MainScene(Scene):
     def on_animation_end(self):
         self.animation_playing = False
         self.board_sprite.on_animation_end()
+        if not self.board.is_possible_to_move():
+            diff = self.board.shuffle()
+            self.board_sprite.add_animation(diff)
+            self.board_sprite.play_animation(pygame.time.get_ticks())
 
     def update(self, ticks: int):
         if self.animation_playing:

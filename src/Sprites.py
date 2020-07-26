@@ -11,7 +11,6 @@ from src.Game import Animation, Timeline, ANIMATION_BEGIN
 
 
 class BoardSprite(Sprite):
-    # Change this to accepting numpy board and block kind count
     def __init__(self, board: Board, surface: Surface, image_list: List[Surface] = None):
         Sprite.__init__(self)
         self.image = surface
@@ -70,7 +69,7 @@ class BoardSprite(Sprite):
         row, column = board_index
         return Vector2(column, row).elementwise() * self.block_size
 
-    def setup_animation(self, animations: List[Tuple], new_board: numpy.ndarray, begin_tick: int):
+    def add_animation(self, animations: List[Tuple]):
         to_hide = []
         to_slide = []
         for a in animations:
@@ -81,6 +80,7 @@ class BoardSprite(Sprite):
                 if a[0] < 0 or a[1] < 0:
                     temp_index = self.board_to_sprite_index((a[0], a[1]))
                     position = self.get_position_by_index((a[0], a[1]))
+                    new_board = self.board.get_board()
                     image = self.block_images[new_board[a[2], a[3]]]
                     self.new_blocks[temp_index] = BlockSprite(position, image)
         for index, a in enumerate(to_hide):
@@ -88,20 +88,23 @@ class BoardSprite(Sprite):
             block = self.blocks[block_index]
             animation = Animation(begin_state=None,
                                   end_state=None,
-                                  delay=index * 100,
+                                  delay=self.timeline.get_last_time(),
                                   duration=100,
                                   setter=block.hide)
             self.timeline.add_animation(animation)
+
+        common_delay = self.timeline.get_last_time()
         for index, a in enumerate(to_slide):
             block_index = self.board_to_sprite_index((a[0], a[1]))
             block = self.new_blocks[block_index] if block_index < 0 else self.blocks[block_index]
             animation = Animation(begin_state=self.get_position_by_index((a[0], a[1])),
                                   end_state=self.get_position_by_index((a[2], a[3])),
-                                  delay=len(to_hide) * 100,
+                                  delay=common_delay,
                                   duration=500,
                                   setter=block.slide)
             self.timeline.add_animation(animation)
 
+    def play_animation(self, begin_tick: int):
         self.timeline.animation_begin(begin_tick)
         event = pygame.event.Event(ANIMATION_BEGIN, {})
         pygame.event.post(event)
@@ -155,7 +158,7 @@ class BlockSprite(Sprite):
             board_surface.blit(self.image, self.rect)
             if selected:
                 cover = Surface((self.image.get_size()))
-                cover.fill(Color(128, 128, 128))
+                cover.fill(Color(100, 100, 100))
                 board_surface.blit(cover, self.rect, special_flags=BLEND_MULT)
 
 

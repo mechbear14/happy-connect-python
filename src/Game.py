@@ -79,6 +79,13 @@ class Timeline:
     def add_animation(self, animation: Animation):
         self.animations.append(animation)
 
+    def get_last_time(self) -> int:
+        animation_time = [animation.delay + animation.duration for animation in self.animations]
+        if len(animation_time) > 0:
+            return max(animation_time)
+        else:
+            return 0
+
     def animation_begin(self, ticks: int):
         self.begin_tick = ticks
 
@@ -91,6 +98,7 @@ class Timeline:
                 progress = (ms - animation.delay) / animation.duration
                 animation.setter(animation.begin_state, animation.end_state, progress)
             elif ms > animation.delay + animation.duration:
+                animation.setter(animation.begin_state, animation.end_state, 1.0)
                 self.animations.remove(animation)
         if len(self.animations) == 0:
             event = pygame.event.Event(ANIMATION_END, {})

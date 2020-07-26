@@ -89,13 +89,15 @@ class Board:
         _, count = numpy.unique(component_numbers, return_counts=True)
         return numpy.amax(count) > 2
 
-    def shuffle(self):
+    def shuffle(self) -> List[Tuple]:
+        diff = []
+
         new_board = numpy.ones(self.dimension, numpy.int8) * -1
         valid_option = [kind for kind, count in enumerate(self.count) if count > 2]
         counts = self.count.copy()
         new_kind = choice(valid_option)
-        new_count = numpy.floor(2 + numpy.random.rand(1) * self.dimension[0]).astype(numpy.int)
-        new_count = numpy.min([new_count[0], counts[new_kind]])
+        new_count = numpy.min([self.dimension[0], counts[new_kind]])
+        new_count = numpy.max([randint(0, new_count - 1), 3])
 
         rows, cols = self.dimension
         directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -108,28 +110,40 @@ class Board:
                               if -1 < row + d[0] < rows and -1 < col + d[1] < cols]
                 neighbours = [n for n in neighbours
                               if not new_board[row + n[0], col + n[1]] == new_kind]
+                if(len(neighbours)) == 0:
+                    new_count = current + 1
+                    break
                 d = choice(neighbours)
                 next_row, next_column = row + d[0], col + d[1]
                 positions.append((next_row, next_column))
         original_positions = numpy.argwhere(self.board == new_kind)[0:new_count]
         original_positions = [(op[0], op[1]) for op in original_positions]
 
-        before_shuffle = [(p[0], p[1]) for p in numpy.argwhere(self.board > -1)]
-        for op in original_positions:
-            before_shuffle.remove(op)
-        after_shuffle = [(p[0], p[1]) for p in numpy.argwhere(new_board < 0)]
+        diff.extend([(op[0], op[1], np[0], np[1])
+                     for op, np in zip(original_positions, positions)])
 
-        indices = [i for i, _ in enumerate(before_shuffle)]
+        prev_positions = [(p[0], p[1]) for p in numpy.argwhere(self.board > -1)]
+        for op in original_positions:
+            prev_positions.remove(op)
+        new_positions = [(p[0], p[1]) for p in numpy.argwhere(new_board < 0)]
+
+        indices = [i for i, _ in enumerate(prev_positions)]
         indices.reverse()
         indices = indices[:-1]
         for a in indices:
             b = randint(0, a)
-            before_shuffle[a], before_shuffle[b] = before_shuffle[b], before_shuffle[a]
-        for before_after in zip(before_shuffle, after_shuffle):
-            src, dest = before_after
+            prev_positions[a], prev_positions[b] = prev_positions[b], prev_positions[a]
+        for old_new in zip(prev_positions, new_positions):
+            src, dest = old_new
             src_row, src_col = src
             dest_row, dest_col = dest
             new_board[dest_row, dest_col] = self.board[src_row, src_col]
 
+        shuffles = [(b[0], b[1], a[0], a[1]) for b, a in zip(prev_positions, new_positions)]
+        diff.extend(shuffles)
+        diff = [d for d in diff if not (d[0] == d[2] and d[1] == d[3])]
+
         self.board = new_board
         self.count_blocks()
+
+        return diff
