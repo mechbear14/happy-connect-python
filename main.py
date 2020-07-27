@@ -2,7 +2,7 @@ import pygame
 import os
 
 from src.Game import Context, Play, Scene
-from src.Scenes import MainScene, TitleScene, WinScene, LoseScene
+from src.Scenes import TitleScene, WinScene, LoseScene
 
 pygame.init()
 
@@ -11,10 +11,10 @@ pygame.display.set_caption("Happy Connect")
 
 this_path = os.path.dirname(os.path.realpath(__file__))
 filenames = ["icon1.png", "icon2.png", "icon3.png", "icon4.png", "icon5.png", "icon6.png"]
-icon_list = [pygame.image.load(os.path.join(this_path, "..", "assets", filename)).convert_alpha()
+icon_list = [pygame.image.load(os.path.join(this_path, "assets", filename)).convert_alpha()
              for filename in filenames]
-board_image = pygame.image.load(os.path.join(this_path, "..", "assets", "board.png"))
-play_image = pygame.image.load(os.path.join(this_path, "..", "assets", "play.png"))
+board_image = pygame.image.load(os.path.join(this_path, "assets", "board.png"))
+play_image = pygame.image.load(os.path.join(this_path, "assets", "play.png"))
 
 scenes = []
 
